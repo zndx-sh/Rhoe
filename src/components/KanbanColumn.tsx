@@ -4,6 +4,7 @@ import { KanbanCard } from './KanbanCard';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 interface KanbanColumnProps {
   column: Column;
@@ -32,23 +33,24 @@ export function KanbanColumn({
 }: KanbanColumnProps) {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskDescription, setNewTaskDescription] = useState('');
 
   const styles = columnStyles[column.id] || columnStyles.todo;
 
   const handleAddTask = () => {
     if (newTaskTitle.trim()) {
-      onAddTask(column.id, newTaskTitle.trim());
+      onAddTask(column.id, newTaskTitle.trim(), newTaskDescription.trim() || undefined);
       setNewTaskTitle('');
+      setNewTaskDescription('');
       setIsAddingTask(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAddTask();
-    } else if (e.key === 'Escape') {
+    if (e.key === 'Escape') {
       setIsAddingTask(false);
       setNewTaskTitle('');
+      setNewTaskDescription('');
     }
   };
 
@@ -85,9 +87,16 @@ export function KanbanColumn({
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Enter task title..."
+                placeholder="Task title..."
                 autoFocus
                 className="mb-2"
+              />
+              <Textarea
+                value={newTaskDescription}
+                onChange={(e) => setNewTaskDescription(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Description (optional)"
+                className="mb-3 min-h-[60px] resize-none text-sm"
               />
               <div className="flex gap-2 justify-end">
                 <Button
@@ -96,6 +105,7 @@ export function KanbanColumn({
                   onClick={() => {
                     setIsAddingTask(false);
                     setNewTaskTitle('');
+                    setNewTaskDescription('');
                   }}
                 >
                   Cancel

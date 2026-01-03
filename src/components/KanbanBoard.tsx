@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { useKanban } from '@/hooks/useKanban';
 import { KanbanColumn } from './KanbanColumn';
-import { Download, Upload, Trash2, LayoutDashboard } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
+import { Download, Upload, Trash2, Waves } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -9,10 +10,10 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
@@ -102,15 +103,16 @@ export function KanbanBoard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <LayoutDashboard className="w-5 h-5 text-primary-foreground" />
+                <Waves className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-display text-2xl font-bold text-foreground">Kanban Board</h1>
+                <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">Rhoē</h1>
                 <p className="text-sm text-muted-foreground">{totalTasks} tasks across {columns.length} columns</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <input
                 ref={fileInputRef}
                 type="file"
