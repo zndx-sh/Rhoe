@@ -1,0 +1,157 @@
+import { useState, useCallback } from 'react';
+import { Column, Task, BoardData } from '@/types/kanban';
+
+const generateId = () => Math.random().toString(36).substring(2, 11);
+
+const initialColumns: Column[] = [
+  {
+    id: 'todo',
+    title: 'To Do',
+    tasks: [
+      { id: generateId(), title: 'Research competitors', description: 'Analyze top 5 market players', createdAt: new Date().toISOString() },
+      { id: generateId(), title: 'Design system setup', createdAt: new Date().toISOString() },
+    ],
+  },
+  {
+    id: 'inprogress',
+    title: 'In Progress',
+    tasks: [
+      { id: generateId(), title: 'Build landing page', description: 'Create hero section and features', createdAt: new Date().toISOString() },
+    ],
+  },
+  {
+    id: 'done',
+    title: 'Done',
+    tasks: [
+      { id: generateId(), title: 'Project kickoff', createdAt: new Date().toISOString() },
+    ],
+  },
+];
+
+export function useKanban() {
+  const [columns, setColumns] = useState<Column[]>(initialColumns);
+
+  const addTask = useCallback((columnId: string, title: string, description?: string) => {
+    const newTask: Task = {
+      id: generateId(),
+      title,
+      description,
+      createdAt: new Date().toISOString(),
+    };
+
+    setColumns((prev) =>
+      prev.map((col) =>
+        col.id === columnId ? { ...col, tasks: [...col.tasks, newTask] } : col
+      )
+    );
+  }, []);
+
+  const updateTask = useCallback((columnId: string, taskId: string, updates: Partial<Task>) => {
+    setColumns((prev) =>
+      prev.map((col) =>
+        col.id === columnId
+          ? {
+              ...col,
+              tasks: col.tasks.map((task) =>
+                task.id === taskId ? { ...task, ...updates } : task
+              ),
+            }
+          : col
+      )
+    );
+  }, []);
+
+  const deleteTask = useCallback((columnId: string, taskId: string) => {
+    setColumns((prev) =>
+      prev.map((col) =>
+        col.id === columnId
+          ? { ...col, tasks: col.tasks.filter((task) => task.id !== taskId) }
+          : col
+      )
+    );
+  }, []);
+
+  const moveTask = useCallback((taskId: string, fromColumnId: string, toColumnId: string) => {
+    if (fromColumnId === toColumnId) return;
+
+    setColumns((prev) => {
+      const taskToMove = prev
+        .find((col) => col.id === fromColumnId)
+        ?.tasks.find((task) => task.id === taskId);
+
+      if (!taskToMove) return prev;
+
+      return prev.map((col) => {
+        if (col.id === fromColumnId) {
+          return { ...col, tasks: col.tasks.filter((task) => task.id !== taskId) };
+        }
+        if (col.id === toColumnId) {
+          return { ...col, tasks: [...col.tasks, taskToMove] };
+        }
+        return col;
+      });
+    });
+  }, []);
+
+  const exportBoard = useCallback(() => {
+    const boardData: BoardData = {
+      columns,
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+    };
+
+    const dataStr = JSON.stringify(boardData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `kanban-board-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [columns]);
+
+  const importBoard = useCallback((file: File): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const boardData: BoardData = JSON.parse(content);
+
+          if (!boardData.columns || !Array.isArray(boardData.columns)) {
+            throw new Error('Invalid board data format');
+          }
+
+          setColumns(boardData.columns);
+          resolve();
+        } catch {
+          reject(new Error('Failed to parse board file'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
+  }, []);
+
+  const clearBoard = useCallback(() => {
+    setColumns([
+      { id: 'todo', title: 'To Do', tasks: [] },
+      { id: 'inprogress', title: 'In Progress', tasks: [] },
+      { id: 'done', title: 'Done', tasks: [] },
+    ]);
+  }, []);
+
+  return {
+    columns,
+    addTask,
+    updateTask,
+    deleteTask,
+    moveTask,
+    exportBoard,
+    importBoard,
+    clearBoard,
+  };
+}
