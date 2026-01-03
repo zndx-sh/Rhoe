@@ -56,20 +56,20 @@ export function KanbanColumn({
 
   return (
     <div
-      className="flex flex-col w-80 flex-shrink-0"
+      className="flex flex-col min-h-[400px]"
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, column.id)}
     >
       <div className="mb-4 flex items-center gap-3">
-        <div className={`w-2 h-2 rounded-full ${styles.accent}`} />
-        <h3 className="font-display text-lg font-semibold text-foreground">{column.title}</h3>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${styles.badge}`}>
+        <div className={`w-3 h-3 rounded-full ${styles.accent}`} />
+        <h3 className="font-display text-xl font-semibold text-foreground">{column.title}</h3>
+        <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles.badge}`}>
           {column.tasks.length}
         </span>
       </div>
 
-      <div className="flex-1 bg-column rounded-xl p-3 shadow-column min-h-[200px]">
-        <div className="space-y-3">
+      <div className="flex-1 bg-column rounded-2xl p-4 shadow-column min-h-[350px]">
+        <div className="space-y-4">
           {column.tasks.map((task) => (
             <KanbanCard
               key={task.id}

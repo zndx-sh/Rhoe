@@ -99,19 +99,19 @@ export function KanbanBoard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <LayoutDashboard className="w-5 h-5 text-primary-foreground" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
+                <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">Rhoē</h1>
-                <p className="text-sm text-muted-foreground">{totalTasks} tasks across {columns.length} columns</p>
+                <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground tracking-tight">Rhoē</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">{totalTasks} tasks</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <ThemeToggle />
               <input
                 ref={fileInputRef}
@@ -120,19 +120,30 @@ export function KanbanBoard() {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <Button variant="outline" size="sm" onClick={handleImportClick}>
+              <Button variant="outline" size="sm" onClick={handleImportClick} className="hidden sm:flex">
                 <Upload className="w-4 h-4 mr-2" />
                 Import
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport}>
+              <Button variant="outline" size="icon" onClick={handleImportClick} className="sm:hidden h-9 w-9">
+                <Upload className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExport} className="hidden sm:flex">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
+              <Button variant="outline" size="icon" onClick={handleExport} className="sm:hidden h-9 w-9">
+                <Download className="w-4 h-4" />
+              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive hidden sm:flex">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Clear
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="text-destructive hover:text-destructive sm:hidden h-9 w-9">
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -157,8 +168,8 @@ export function KanbanBoard() {
       </header>
 
       {/* Board */}
-      <main className="flex-1 px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      <main className="flex-1 px-4 sm:px-6 py-6 sm:py-8 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}

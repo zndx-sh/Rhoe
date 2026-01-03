@@ -66,34 +66,34 @@ export function KanbanCard({ task, columnId, onUpdate, onDelete, onDragStart }: 
     <div
       draggable
       onDragStart={(e) => onDragStart(e, task.id, columnId)}
-      className="bg-card rounded-lg p-4 shadow-card hover:shadow-card-hover transition-all duration-200 cursor-grab active:cursor-grabbing group animate-fade-in border border-transparent hover:border-border"
+      className="bg-card rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all duration-200 cursor-grab active:cursor-grabbing group animate-fade-in border border-transparent hover:border-border"
     >
-      <div className="flex items-start gap-2">
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 text-muted-foreground">
-          <GripVertical className="w-4 h-4" />
+      <div className="flex items-start gap-3">
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-1 text-muted-foreground touch-none">
+          <GripVertical className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-foreground leading-tight">{task.title}</h4>
+          <h4 className="font-medium text-foreground text-base leading-snug">{task.title}</h4>
           {task.description && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
+            <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{task.description}</p>
           )}
         </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7"
+            className="h-8 w-8"
             onClick={() => setIsEditing(true)}
           >
-            <Edit2 className="w-3.5 h-3.5" />
+            <Edit2 className="w-4 h-4" />
           </Button>
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7 text-destructive hover:text-destructive"
+            className="h-8 w-8 text-destructive hover:text-destructive"
             onClick={() => onDelete(task.id)}
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
