@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useKanban } from '@/hooks/useKanban';
 import { KanbanColumn } from './KanbanColumn';
 import { ThemeToggle } from './ThemeToggle';
-import { Download, Upload, Trash2, Waves } from 'lucide-react';
+import { Download, Upload, Trash2, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -103,7 +103,7 @@ export function KanbanBoard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <Waves className="w-5 h-5 text-primary-foreground" />
+                <LayoutDashboard className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
                 <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">Rhoē</h1>
