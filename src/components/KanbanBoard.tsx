@@ -157,8 +157,8 @@ export function KanbanBoard() {
       </header>
 
       {/* Board */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-6 overflow-x-auto pb-4">
+      <main className="flex-1 px-6 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
