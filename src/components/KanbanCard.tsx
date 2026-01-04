@@ -89,8 +89,8 @@ export function KanbanCard({ task, columnId, onUpdate, onDelete, onDragStart }: 
           </Button>
           <Button
             size="icon"
-            variant="ghost"
-            className="h-8 w-8 text-destructive hover:text-destructive"
+            variant="ghost-destructive"
+            className="h-8 w-8"
             onClick={() => onDelete(task.id)}
           >
             <Trash2 className="w-4 h-4" />

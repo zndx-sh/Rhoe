@@ -30,6 +30,7 @@ const initialColumns: Column[] = [
 
 export function useKanban() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
+  const [boardName, setBoardName] = useState('My Board');
 
   const addTask = useCallback((columnId: string, title: string, description?: string) => {
     const newTask: Task = {
@@ -95,6 +96,7 @@ export function useKanban() {
 
   const exportBoard = useCallback(() => {
     const boardData: BoardData = {
+      name: boardName,
       columns,
       exportedAt: new Date().toISOString(),
       version: '1.0',
@@ -104,14 +106,15 @@ export function useKanban() {
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
 
+    const sanitizedName = boardName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
     const link = document.createElement('a');
     link.href = url;
-    link.download = `kanban-board-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `${sanitizedName}-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [columns]);
+  }, [columns, boardName]);
 
   const importBoard = useCallback((file: File): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -126,6 +129,9 @@ export function useKanban() {
           }
 
           setColumns(boardData.columns);
+          if (boardData.name) {
+            setBoardName(boardData.name);
+          }
           resolve();
         } catch {
           reject(new Error('Failed to parse board file'));
@@ -146,6 +152,8 @@ export function useKanban() {
 
   return {
     columns,
+    boardName,
+    setBoardName,
     addTask,
     updateTask,
     deleteTask,

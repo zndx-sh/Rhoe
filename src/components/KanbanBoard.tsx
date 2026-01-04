@@ -2,7 +2,8 @@ import { useRef, useState, useCallback } from 'react';
 import { useKanban } from '@/hooks/useKanban';
 import { KanbanColumn } from './KanbanColumn';
 import { ThemeToggle } from './ThemeToggle';
-import { Download, Upload, Trash2, LayoutDashboard, FileJson } from 'lucide-react';
+import { Download, Upload, Trash2, LayoutDashboard, FileJson, Pencil, Check } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -20,6 +21,8 @@ import {
 export function KanbanBoard() {
   const {
     columns,
+    boardName,
+    setBoardName,
     addTask,
     updateTask,
     deleteTask,
@@ -31,7 +34,10 @@ export function KanbanBoard() {
 
   const [draggedTask, setDraggedTask] = useState<{ taskId: string; columnId: string } | null>(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(boardName);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleDragStart = (e: React.DragEvent, taskId: string, columnId: string) => {
@@ -133,6 +139,28 @@ export function KanbanBoard() {
     }
   }, [handleFileImport]);
 
+  const handleStartEditName = () => {
+    setEditedName(boardName);
+    setIsEditingName(true);
+    setTimeout(() => nameInputRef.current?.focus(), 0);
+  };
+
+  const handleSaveName = () => {
+    if (editedName.trim()) {
+      setBoardName(editedName.trim());
+    }
+    setIsEditingName(false);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      setIsEditingName(false);
+      setEditedName(boardName);
+    }
+  };
+
   const handleClear = () => {
     clearBoard();
     toast({
@@ -175,8 +203,29 @@ export function KanbanBoard() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
                 <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground tracking-tight">Rhoē</h1>
+              <div className="min-w-0">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      ref={nameInputRef}
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      onKeyDown={handleNameKeyDown}
+                      onBlur={handleSaveName}
+                      className="h-8 text-lg font-bold w-40 sm:w-48"
+                    />
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSaveName}>
+                      <Check className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 group/name cursor-pointer" onClick={handleStartEditName}>
+                    <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground tracking-tight truncate max-w-[150px] sm:max-w-[200px]">
+                      {boardName}
+                    </h1>
+                    <Pencil className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover/name:opacity-100 transition-opacity shrink-0" />
+                  </div>
+                )}
                 <p className="text-xs sm:text-sm text-muted-foreground">{totalTasks} tasks</p>
               </div>
             </div>

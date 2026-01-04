@@ -12,6 +12,7 @@ export interface Column {
 }
 
 export interface BoardData {
+  name?: string;
   columns: Column[];
   exportedAt: string;
   version: string;
