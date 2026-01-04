@@ -13,7 +13,7 @@ interface KanbanColumnProps {
   onDeleteTask: (columnId: string, taskId: string) => void;
   onDragStart: (e: React.DragEvent, taskId: string, columnId: string) => void;
   onDragOver: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent, columnId: string) => void;
+  onDrop: (e: React.DragEvent, columnId: string, targetIndex?: number) => void;
 }
 
 const columnStyles: Record<string, { accent: string; badge: string }> = {
@@ -55,6 +55,7 @@ export function KanbanColumn({
   };
 
   const [isDragOver, setIsDragOver] = useState(false);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     onDragOver(e);
@@ -63,11 +64,25 @@ export function KanbanColumn({
 
   const handleDragLeave = () => {
     setIsDragOver(false);
+    setDropTargetIndex(null);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     setIsDragOver(false);
-    onDrop(e, column.id);
+    const index = dropTargetIndex !== null ? dropTargetIndex : column.tasks.length;
+    setDropTargetIndex(null);
+    onDrop(e, column.id, index);
+  };
+
+  const handleCardDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const targetIndex = e.clientY < midY ? index : index + 1;
+    setDropTargetIndex(targetIndex);
   };
 
   return (
@@ -87,15 +102,26 @@ export function KanbanColumn({
 
       <div className={`flex-1 bg-column rounded-2xl p-4 shadow-column min-h-[350px] transition-all duration-300 ${isDragOver ? 'ring-2 ring-primary/50 bg-primary/5 scale-[1.01]' : ''}`}>
         <div className="space-y-4">
-          {column.tasks.map((task) => (
-            <KanbanCard
-              key={task.id}
-              task={task}
-              columnId={column.id}
-              onUpdate={(taskId, updates) => onUpdateTask(column.id, taskId, updates)}
-              onDelete={(taskId) => onDeleteTask(column.id, taskId)}
-              onDragStart={onDragStart}
-            />
+          {column.tasks.map((task, index) => (
+            <div key={task.id} className="relative">
+              {dropTargetIndex === index && (
+                <div className="absolute -top-2 left-0 right-0 h-1 bg-primary rounded-full animate-pulse" />
+              )}
+              <div
+                onDragOver={(e) => handleCardDragOver(e, index)}
+              >
+                <KanbanCard
+                  task={task}
+                  columnId={column.id}
+                  onUpdate={(taskId, updates) => onUpdateTask(column.id, taskId, updates)}
+                  onDelete={(taskId) => onDeleteTask(column.id, taskId)}
+                  onDragStart={onDragStart}
+                />
+              </div>
+              {dropTargetIndex === index + 1 && index === column.tasks.length - 1 && (
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-primary rounded-full animate-pulse" />
+              )}
+            </div>
           ))}
 
           {isAddingTask ? (
