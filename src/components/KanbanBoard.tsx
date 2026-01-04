@@ -50,10 +50,10 @@ export function KanbanBoard() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
+  const handleDrop = (e: React.DragEvent, targetColumnId: string, targetIndex?: number) => {
     e.preventDefault();
     if (draggedTask) {
-      moveTask(draggedTask.taskId, draggedTask.columnId, targetColumnId);
+      moveTask(draggedTask.taskId, draggedTask.columnId, targetColumnId, targetIndex);
       setDraggedTask(null);
     }
   };
@@ -255,13 +255,13 @@ export function KanbanBoard() {
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive hidden sm:flex">
+                  <Button variant="outline-destructive" size="sm" className="hidden sm:flex">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Clear
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="icon" className="text-destructive hover:text-destructive sm:hidden h-9 w-9">
+                  <Button variant="outline-destructive" size="icon" className="sm:hidden h-9 w-9">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </AlertDialogTrigger>

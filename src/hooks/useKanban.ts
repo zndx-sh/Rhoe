@@ -72,9 +72,7 @@ export function useKanban() {
     );
   }, []);
 
-  const moveTask = useCallback((taskId: string, fromColumnId: string, toColumnId: string) => {
-    if (fromColumnId === toColumnId) return;
-
+  const moveTask = useCallback((taskId: string, fromColumnId: string, toColumnId: string, targetIndex?: number) => {
     setColumns((prev) => {
       const taskToMove = prev
         .find((col) => col.id === fromColumnId)
@@ -82,12 +80,30 @@ export function useKanban() {
 
       if (!taskToMove) return prev;
 
+      // Same column reorder
+      if (fromColumnId === toColumnId) {
+        return prev.map((col) => {
+          if (col.id !== fromColumnId) return col;
+          
+          const tasks = [...col.tasks];
+          const fromIndex = tasks.findIndex((t) => t.id === taskId);
+          tasks.splice(fromIndex, 1);
+          const insertIndex = targetIndex !== undefined ? targetIndex : tasks.length;
+          tasks.splice(insertIndex, 0, taskToMove);
+          return { ...col, tasks };
+        });
+      }
+
+      // Cross-column move
       return prev.map((col) => {
         if (col.id === fromColumnId) {
           return { ...col, tasks: col.tasks.filter((task) => task.id !== taskId) };
         }
         if (col.id === toColumnId) {
-          return { ...col, tasks: [...col.tasks, taskToMove] };
+          const tasks = [...col.tasks];
+          const insertIndex = targetIndex !== undefined ? targetIndex : tasks.length;
+          tasks.splice(insertIndex, 0, taskToMove);
+          return { ...col, tasks };
         }
         return col;
       });
