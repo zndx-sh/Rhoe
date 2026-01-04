@@ -66,10 +66,10 @@ export function KanbanCard({ task, columnId, onUpdate, onDelete, onDragStart }: 
     <div
       draggable
       onDragStart={(e) => onDragStart(e, task.id, columnId)}
-      className="bg-card rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all duration-200 cursor-grab active:cursor-grabbing group animate-fade-in border border-transparent hover:border-border"
+      className="bg-card rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all duration-300 ease-out cursor-grab active:cursor-grabbing active:scale-[1.02] active:shadow-lg group animate-fade-in border border-transparent hover:border-border will-change-transform"
     >
       <div className="flex items-start gap-3">
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-1 text-muted-foreground touch-none">
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-1 text-muted-foreground touch-none">
           <GripVertical className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
@@ -78,7 +78,7 @@ export function KanbanCard({ task, columnId, onUpdate, onDelete, onDragStart }: 
             <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{task.description}</p>
           )}
         </div>
-        <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
           <Button
             size="icon"
             variant="ghost"
