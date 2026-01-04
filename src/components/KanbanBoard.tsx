@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { useKanban } from '@/hooks/useKanban';
 import { KanbanColumn } from './KanbanColumn';
 import { ThemeToggle } from './ThemeToggle';
-import { Download, Upload, Trash2, LayoutDashboard } from 'lucide-react';
+import { Download, Upload, Trash2, LayoutDashboard, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -30,6 +30,7 @@ export function KanbanBoard() {
   } = useKanban();
 
   const [draggedTask, setDraggedTask] = useState<{ taskId: string; columnId: string } | null>(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -63,27 +64,74 @@ export function KanbanBoard() {
     fileInputRef.current?.click();
   };
 
+  const handleFileImport = useCallback(async (file: File) => {
+    if (!file.name.endsWith('.json')) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please drop a JSON file.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    try {
+      await importBoard(file);
+      toast({
+        title: 'Board imported',
+        description: 'Your Kanban board has been restored successfully.',
+      });
+    } catch {
+      toast({
+        title: 'Import failed',
+        description: 'Could not import the board. Please check the file format.',
+        variant: 'destructive',
+      });
+    }
+  }, [importBoard, toast]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      try {
-        await importBoard(file);
-        toast({
-          title: 'Board imported',
-          description: 'Your Kanban board has been restored successfully.',
-        });
-      } catch {
-        toast({
-          title: 'Import failed',
-          description: 'Could not import the board. Please check the file format.',
-          variant: 'destructive',
-        });
-      }
+      await handleFileImport(file);
     }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
+
+  const handleFileDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDraggingFile(true);
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  }, []);
+
+  const handleFileDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set to false if we're leaving the main container
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (
+      e.clientX <= rect.left ||
+      e.clientX >= rect.right ||
+      e.clientY <= rect.top ||
+      e.clientY >= rect.bottom
+    ) {
+      setIsDraggingFile(false);
+    }
+  }, []);
+
+  const handleFileDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFileImport(file);
+    }
+  }, [handleFileImport]);
 
   const handleClear = () => {
     clearBoard();
@@ -96,7 +144,29 @@ export function KanbanBoard() {
   const totalTasks = columns.reduce((sum, col) => sum + col.tasks.length, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen bg-background relative"
+      onDragOver={handleFileDragOver}
+      onDragLeave={handleFileDragLeave}
+      onDrop={handleFileDrop}
+    >
+      {/* File drop overlay */}
+      {isDraggingFile && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center pointer-events-none">
+          <div className="bg-card border-2 border-dashed border-primary rounded-2xl p-12 shadow-lg animate-scale-in">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <FileJson className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-semibold text-foreground">Drop to import</h3>
+                <p className="text-muted-foreground text-sm mt-1">Release to restore your board</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
@@ -168,7 +238,7 @@ export function KanbanBoard() {
       </header>
 
       {/* Board */}
-      <main className="flex-1 px-4 sm:px-6 py-6 sm:py-8 pb-20">
+      <main className="flex-1 px-4 sm:px-6 py-6 sm:py-8 pb-16 sm:pb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto">
           {columns.map((column) => (
             <KanbanColumn
@@ -185,10 +255,10 @@ export function KanbanBoard() {
         </div>
       </main>
 
-      {/* Footer hint */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent py-6 pointer-events-none">
+      {/* Footer hint - hidden on mobile */}
+      <footer className="hidden sm:block fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent py-6 pointer-events-none">
         <p className="text-center text-sm text-muted-foreground">
-          Drag cards between columns • Export to save • Import to restore
+          Drag cards between columns • Drop JSON to import • Export to save
         </p>
       </footer>
     </div>
