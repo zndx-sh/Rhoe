@@ -288,7 +288,20 @@ export function KanbanBoard() {
 
       {/* Board */}
       <main className="flex-1 px-4 sm:px-6 py-6 sm:py-8 pb-16 sm:pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto">
+        {/* SEO-friendly description - visually hidden but accessible */}
+        <section aria-label="About Rhoē" className="sr-only">
+          <h2>Simple Task Management</h2>
+          <p>
+            Rhoē is a free, elegant Kanban board to organize your workflow. 
+            Create tasks, drag and drop between columns, and track progress 
+            with an intuitive interface. Export your board as JSON to save 
+            your work, or import existing boards. Works offline and respects 
+            your privacy with local storage. Perfect for personal projects, 
+            team collaboration, and agile workflows.
+          </p>
+        </section>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto" role="region" aria-label="Kanban columns">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
