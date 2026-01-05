@@ -288,14 +288,12 @@ export function KanbanBoard() {
 
       {/* Board */}
       <main className="flex-1 px-4 sm:px-6 py-6 sm:py-8 pb-16 sm:pb-20">
-        {/* SEO Content - visible but subtle */}
-        <section className="max-w-7xl mx-auto mb-6">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Organize your workflow with this simple Kanban board. Drag and drop tasks between columns to track progress. 
-            Create new tasks, edit descriptions, and manage your projects efficiently. Export your board as JSON to save 
-            your work, or import existing boards to continue where you left off.
-          </p>
-        </section>
+        {/* SEO Content - visually hidden but accessible to crawlers */}
+        <p className="sr-only">
+          Organize your workflow with this simple Kanban board. Drag and drop tasks between columns to track progress. 
+          Create new tasks, edit descriptions, and manage your projects efficiently. Export your board as JSON to save 
+          your work, or import existing boards to continue where you left off.
+        </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto" role="region" aria-label="Kanban columns">
           {columns.map((column) => (
