@@ -94,7 +94,7 @@ export function KanbanColumn({
     >
       <div className="mb-4 flex items-center gap-3">
         <div className={`w-3 h-3 rounded-full ${styles.accent} transition-transform duration-200 ${isDragOver ? 'scale-125' : ''}`} />
-        <h3 className="font-display text-xl font-semibold text-foreground">{column.title}</h3>
+        <h2 className="font-display text-xl font-semibold text-foreground">{column.title}</h2>
         <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles.badge} transition-all duration-200 ${isDragOver ? 'scale-110' : ''}`}>
           {column.tasks.length}
         </span>
