@@ -8,23 +8,35 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener BEFORE checking session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+    let mounted = true;
+
+    // Check for existing session first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Set up auth state listener for changes only
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mounted) return;
+        
+        // Only update on actual auth events, not visibility changes
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
