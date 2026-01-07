@@ -284,7 +284,6 @@ export function KanbanBoard() {
 
             <div className="flex items-center gap-1 sm:gap-2">
               <AuthButton />
-              <ThemeToggle />
               <input
                 ref={fileInputRef}
                 type="file"
@@ -292,29 +291,16 @@ export function KanbanBoard() {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <Button variant="outline" size="sm" onClick={handleImportClick} className="hidden sm:flex">
-                <Upload className="w-4 h-4 mr-2" />
-                Import
-              </Button>
-              <Button variant="outline" size="icon" onClick={handleImportClick} className="sm:hidden h-9 w-9">
+              <Button variant="outline" size="icon" onClick={handleImportClick} className="h-9 w-9">
                 <Upload className="w-4 h-4" />
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport} className="hidden sm:flex">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="icon" onClick={handleExport} className="sm:hidden h-9 w-9">
+              <Button variant="outline" size="icon" onClick={handleExport} className="h-9 w-9">
                 <Download className="w-4 h-4" />
               </Button>
+              <ThemeToggle />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline-destructive" size="sm" className="hidden sm:flex">
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Clear
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline-destructive" size="icon" className="sm:hidden h-9 w-9">
+                  <Button variant="outline-destructive" size="icon" className="h-9 w-9">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </AlertDialogTrigger>
