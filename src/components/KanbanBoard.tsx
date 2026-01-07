@@ -1,8 +1,10 @@
 import { useRef, useState, useCallback } from 'react';
-import { useKanban } from '@/hooks/useKanban';
+import { useKanbanSync } from '@/hooks/useKanbanSync';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { KanbanColumn } from './KanbanColumn';
 import { ThemeToggle } from './ThemeToggle';
-import { Download, Upload, Trash2, LayoutDashboard, FileJson, Pencil, Check } from 'lucide-react';
+import { AuthButton } from './AuthButton';
+import { Download, Upload, Trash2, LayoutDashboard, FileJson, Pencil, Check, Cloud, CloudOff, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +19,11 @@ import {
   AlertDialogFooter,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export function KanbanBoard() {
   const {
@@ -30,7 +37,12 @@ export function KanbanBoard() {
     exportBoard,
     importBoard,
     clearBoard,
-  } = useKanban();
+    loading,
+    syncing,
+    isAuthenticated,
+  } = useKanbanSync();
+
+  const { loading: authLoading } = useAuthContext();
 
   const [draggedTask, setDraggedTask] = useState<{ taskId: string; columnId: string } | null>(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
@@ -116,7 +128,6 @@ export function KanbanBoard() {
   const handleFileDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Only set to false if we're leaving the main container
     const rect = e.currentTarget.getBoundingClientRect();
     if (
       e.clientX <= rect.left ||
@@ -170,6 +181,17 @@ export function KanbanBoard() {
   };
 
   const totalTasks = columns.reduce((sum, col) => sum + col.tasks.length, 0);
+
+  if (loading || authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading your board...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -226,11 +248,42 @@ export function KanbanBoard() {
                     <Pencil className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover/name:opacity-100 transition-opacity shrink-0" />
                   </div>
                 )}
-                <p className="text-xs sm:text-sm text-muted-foreground">{totalTasks} tasks</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs sm:text-sm text-muted-foreground">{totalTasks} tasks</p>
+                  {isAuthenticated && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex items-center gap-1">
+                          {syncing ? (
+                            <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                          ) : (
+                            <Cloud className="w-3 h-3 text-green-500" />
+                          )}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {syncing ? 'Syncing...' : 'Saved to cloud'}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  {!isAuthenticated && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex items-center gap-1">
+                          <CloudOff className="w-3 h-3 text-muted-foreground" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Sign in to save your board
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="flex items-center gap-1 sm:gap-2">
+              <AuthButton />
               <ThemeToggle />
               <input
                 ref={fileInputRef}
@@ -314,7 +367,10 @@ export function KanbanBoard() {
       {/* Footer hint - hidden on mobile */}
       <footer className="hidden sm:block fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent py-6 pointer-events-none">
         <p className="text-center text-sm text-muted-foreground">
-          Drag cards between columns • Drop JSON to import • Export to save
+          {isAuthenticated 
+            ? 'Your board syncs automatically • Drag cards between columns • Export to backup'
+            : 'Drag cards between columns • Drop JSON to import • Sign in to save your board'
+          }
         </p>
       </footer>
     </div>
