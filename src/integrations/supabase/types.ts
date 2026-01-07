@@ -14,7 +14,97 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      boards: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      columns: {
+        Row: {
+          board_id: string
+          id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          board_id: string
+          id: string
+          position?: number
+          title: string
+        }
+        Update: {
+          board_id?: string
+          id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "columns_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          board_id: string
+          column_id: string
+          created_at: string
+          description: string | null
+          id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          board_id: string
+          column_id: string
+          created_at?: string
+          description?: string | null
+          id: string
+          position?: number
+          title: string
+        }
+        Update: {
+          board_id?: string
+          column_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_board_id_column_id_fkey"
+            columns: ["board_id", "column_id"]
+            isOneToOne: false
+            referencedRelation: "columns"
+            referencedColumns: ["board_id", "id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
